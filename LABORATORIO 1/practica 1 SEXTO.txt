@@ -1,0 +1,737 @@
+TAREA 3 
+
+PASO 1:
+
+NUCLEO
+ 
+enable 
+configure t
+hostname NUCLEO
+
+ADMINISTRATIVOS
+ 
+enable 
+configure t
+hostname ADMINISTRATIVOS
+
+COMERCIAL
+ 
+enable 
+configure t
+hostname COMERCIAL
+
+FIREWALL
+ 
+enable 
+configure t
+hostname FIREWALL
+
+ISP
+ 
+enable 
+configure t
+hostname ISP
+
+PASO 2:
+
+UBICAR ESTO MISMO EN TODOS LOS ROUTERS LUEGO DE PONER LA CONTRASEÑA Y ENABLE
+
+configure t
+enable password 1234
+enable secret 12345
+line console 0
+password 1234
+login 
+exit
+line vty 0 4
+password 1234
+login
+exit
+
+PASO 3
+
+UBICAR ESTO MISMO EN TODOS LOS ROUTERS LUEGO DE PONER LA CONTRASEÑA Y ENABLE
+
+enable 
+configure t
+banner motd "Peligro no puede ingresar si no se identifica"
+do write
+
+PASO 4:
+
+INTERFACES 
+
+ADMINISTRACION
+
+enable 
+configure t 
+interface Serial0/0/1
+ip address 172.16.0.97 255.255.255.252
+clock rate 6400
+description router administrativo
+no sh
+exit
+interface Serial0/0/0
+ip address 172.16.0.109 255.255.255.252
+clock rate 6400
+description router comercial
+no sh
+exit
+interface fastEthernet 0/0.10
+encapsulation dot1Q 10
+ip address 172.16.0.33 255.255.255.240
+exit 
+interface fastEthernet 0/0.20
+encapsulation dot1Q 20
+ip address 172.16.0.49 255.255.255.240
+exit
+interface fastEthernet 0/0.50
+encapsulation dot1Q 50
+ip address 172.16.0.1 255.255.255.240
+exit 
+interface fastEthernet 0/0
+no shutdown
+do write
+
+COMERCIAL
+
+interface serial 0/0/1
+ip address 172.16.0.110 255.255.255.252
+description Enlace a DPT Administrativo 
+no sh
+exit
+int s0/0/0
+ip add 172.16.0.102 255.255.255.252
+description Enlace de comercio a nucleo
+no sh
+exit
+interface fastEthernet 0/0.60
+encapsulation dot1Q 60
+ip address 172.16.0.17 255.255.255.240
+exit
+interface fastEthernet 0/0.30
+encapsulation dot1Q 30
+ip address 172.16.0.65 255.255.255.240
+exit
+interface fastEthernet 0/0.40
+encapsulation dot1Q 40
+ip address 172.16.0.81 255.255.255.240
+exit
+interface fastEthernet 0/0
+no sh
+do write
+
+NUCLEO
+
+interface serial 0/0/0
+ip address 172.16.0.98 255.255.255.252
+description Enlace de nucleo administrador 
+clock rate 64000
+no sh
+exit
+int s0/0/1
+ip add 172.16.0.101 255.255.255.252
+description Enlace de nucleo comercio
+clock rate 64000
+no sh
+exit
+int s0/1/0
+ip add 172.16.0.105 255.255.255.252
+description Enlace de nucleo Firewall
+clock rate 64000
+no sh
+exit
+do write
+
+FREWALL
+
+interface serial 0/0/0
+ip address 172.16.0.106 255.255.255.252
+description Enlace de firewall a nucleo 
+no sh
+exit
+int s0/0/1
+ip add 198.200.0.1 255.255.255.252
+description Enlace de firewall a ISP
+clock rate 64000
+no sh
+exit
+interface fastEthernet 0/0
+ip add 198.200.1.1 255.255.255.240
+no sh
+do write
+
+ISP
+
+interface serial 0/0/0
+ip address 198.200.0.2 255.255.255.252
+description Enlace ISP a firewall  
+no sh
+exit
+interface fastEthernet 0/0
+ip add 198.200.2.1 255.255.255.240
+no sh
+do write
+
+PASO 5
+
+show ip router
+
+PASO 6 
+
+GUARDE CONGIGURACION DE CADA ROUTER 
+
+configure t
+do write
+
+TAREA 4
+
+PASO 1
+
+ADMINISTRADOR
+
+ip route 172.16.0.16 255.255.255.240 172.16.0.110
+ip route 172.16.0.64 255.255.255.240 172.16.0.110
+ip route 172.16.0.80 255.255.255.240 172.16.0.110
+ip route 172.16.0.100 255.255.255.252 172.16.0.110
+ip route 172.16.0.104 255.255.255.252 172.16.0.98
+ip route 198.200.0.0 255.255.255.252 172.16.0.98
+ip route 198.200.1.0 255.255.255.240 172.16.0.98
+ip route 198.200.2.0 255.255.255.240 172.16.0.98
+
+copy running-config startup-config
+
+NUCLEO
+
+ip route 172.16.0.32 255.255.255.240 172.16.0.97 
+ip route 172.16.0.48 255.255.255.240 172.16.0.97
+ip route 172.16.0.0 255.255.255.240 172.16.0.97 
+ip route 172.16.0.108 255.255.255.252 172.16.0.97  
+ip route 172.16.0.16 255.255.255.240 172.16.0.102 
+ip route 172.16.0.64 255.255.255.240 172.16.0.102 
+ip route 172.16.0.80 255.255.255.240 172.16.0.102 
+ip route 198.200.1.0 255.255.255.240 172.16.0.106 
+ip route 198.200.0.0 255.255.255.252 172.16.0.106
+ip route 198.200.2.0 255.255.255.240 172.16.0.106
+
+copy running-config startup-config
+
+COMERCIAL
+
+ip route 172.16.0.32 255.255.255.240 172.16.0.109
+ip route 172.16.0.48 255.255.255.240 172.16.0.109  
+ip route 172.16.0.0 255.255.255.240 172.16.0.109 
+ip route 172.16.0.96 255.255.255.240 172.16.0.109 
+ip route 172.16.0.104 255.255.255.252 172.16.0.101 
+ip route 198.200.1.0 255.255.255.240 172.16.0.101 
+ip route 198.200.0.0 255.255.255.252 172.16.0.101 
+ip route 198.200.2.0 255.255.255.240 172.16.0.101
+
+copy running-config startup-config
+
+FIREWALL
+
+ip route 172.16.0.0 255.255.255.240 172.16.0.105 
+ip route 172.16.0.16 255.255.255.240 172.16.0.105
+ip route 172.16.0.32 255.255.255.240 172.16.0.105
+ip route 172.16.0.48 255.255.255.240 172.16.0.105 
+ip route 172.16.0.64 255.255.255.240 172.16.0.105 
+ip route 172.16.0.80 255.255.255.240 172.16.0.105 
+ip route 172.16.0.96 255.255.255.252 172.16.0.105 
+ip route 172.16.0.100 255.255.255.252 172.16.0.105
+ip route 172.16.0.108 255.255.255.252 172.16.0.105 
+ip route 198.200.2.0 255.255.255.240 198.200.0.2
+
+do-write
+
+ISP
+
+ip route 172.16.0.0 255.255.255.240 198.200.0.1 
+ip route 172.16.0.16 255.255.255.240 198.200.0.1 
+ip route 172.16.0.32 255.255.255.240 198.200.0.1 
+ip route 172.16.0.48 255.255.255.240 198.200.0.1 
+ip route 172.16.0.64 255.255.255.240 198.200.0.1 
+ip route 172.16.0.80 255.255.255.240 198.200.0.1 
+ip route 172.16.0.96 255.255.255.252 198.200.0.1 
+ip route 172.16.0.100 255.255.255.252 198.200.0.1 
+ip route 172.16.0.104 255.255.255.252 198.200.0.1 
+ip route 172.16.0.108 255.255.255.252 198.200.0.1 
+ip route 198.200.1.0 255.255.255.240 198.200.0.1
+
+do write
+
+PASO 2
+
+FRAMEWORK
+
+ip route 0.0.0.0 0.0.0.0 198.200.0.2
+
+ISP
+
+ip route 172.16.0.0 255.255.255.240 198.200.0.1 
+ip route 172.16.0.16 255.255.255.240 198.200.0.1 
+ip route 172.16.0.32 255.255.255.240 198.200.0.1 
+ip route 172.16.0.48 255.255.255.240 198.200.0.1 
+ip route 172.16.0.64 255.255.255.240 198.200.0.1 
+ip route 172.16.0.80 255.255.255.240 198.200.0.1 
+ip route 172.16.0.96 255.255.255.252 198.200.0.1 
+ip route 172.16.0.100 255.255.255.252 198.200.0.1 
+ip route 172.16.0.104 255.255.255.252 198.200.0.1 
+ip route 172.16.0.108 255.255.255.252 198.200.0.1 
+ip route 198.200.1.0 255.255.255.240 198.200.0.1
+
+do write
+
+PASO 3
+
+show ip router
+
+
+PASO 4
+
+ping 198.200.0.1
+
+PASO 5
+
+do write
+
+rip configuracion de router
+
+configure t
+router rip
+network 198.168.3.0
+network 198.168.2.0
+network 198.168.4.0
+exit
+do write
+
+TAREA 5
+
+PASO 1
+
+SW-ADMIN
+
+enable
+configure t
+vlan 10 
+name RRHH
+exit 
+vlan 20
+name GERENCIA
+exit 
+vlan 50
+name SOPORTE
+exit 
+DO WRITE
+
+SW-COMERCIAL
+
+enable
+configure t
+vlan 60
+name TIC
+exit 
+vlan 30
+name MERCADOTECNIA
+exit 
+vlan 40
+name COBRANZA
+exit 
+
+
+PASO 2
+
+SW-ADMIN
+
+configure t
+interface range fastEthernet 0/1-9
+switchport acces vlan 10 
+exit 
+interface range fastEthernet 0/10-19
+switchport acces vlan 20
+exit 
+interface range fastEthernet 0/20-21
+switchport acces vlan 50
+exit 
+
+
+SW-COMERCIAL
+
+configure t
+interface range fastEthernet 0/20-21
+switchport acces vlan 60
+exit 
+interface range fastEthernet 0/1-9
+switchport acces vlan 30
+exit 
+interface range fastEthernet 0/10-19
+switchport acces vlan 40
+exit 
+
+
+PASO 3
+
+show vlan
+
+PASO 4
+
+ping PC0 A PC1 (DEBE HABERR)
+ping PC0 A PC6 (NO DEBE HABER)
+
+PASO 5
+
+do write
+
+TAREA 6
+
+PASO 1
+
+REALIZAR ESTO MISMO EN TODOS LOS SWITCH
+
+interface fastEthernet 0/24
+switchport mode trunk
+exit
+copy running-config startup-config
+
+PASO 2
+
+ping PC0 A PC1 (DEBE HABERR)
+ping PC0 A PC6 (DEBE HABER)
+
+PASO 3
+
+do write
+
+TAREA 7
+
+PASO 1
+ 
+PRIMERO
+
+FIREWALL
+access-list 1 deny 172.16.0.32 0.0.0.15
+access-list 1 permit any
+interface serial 0/0/1
+ip access-group 1 out
+exit
+
+SEGUNDO 
+
+COMERCIAL
+access-list 2  permit 172.16.0.16 0.0.0.15
+interface fastEthernet 0/0.50
+ip access-group 2 out
+exit
+do write
+
+TERCERO
+
+access-list 3 permit 172.16.0.0 0.0.0.15
+interface fastEthernet 0/0.60
+ip access-group 3 out
+exit
+do write
+
+CUARTO 
+
+access-list 4 deny 172.16.0.80 0.0.0.5
+interface fastEthernet 0/0
+ip access-group 4 out
+exit
+do write
+
+PASO 2
+
+no show run 
+
+-----NO HAY PASO 3 Y 4 
+
+PASO 5
+
+PCO
+ping 198.200.2.2
+ping 172.16.0.2
+
+PC11
+ping 198.200.2.2
+ping 198.200.1.2
+
+PASO 6
+
+do write
+
+
+
+
+
+HASTA AQUI LLEGA LA DE LABORATORIO 2 DE QUINTO
+
+
+
+
+AQUI COMIENZA LAS TAREAS DE LABORATORIO 1 DE SEXTO 
+
+
+
+
+
+
+TAREA 8
+
+PASO 1
+
+ADMINISTRATIVO
+
+interface serial 0/0/0
+no ip add 172.16.0.97 255.255.255.252
+exit
+interface serial 0/0/1
+no ip add 172.16.0.109 255.255.255.252
+exit
+do write
+
+COMERCIAL
+
+interface serial 0/0/0
+no ip add 172.16.0.101 255.255.255.252
+no clock rate 6400
+exit
+interface serial 0/0/1
+no ip add 172.16.0.110 255.255.255.252
+no clock rate 6400
+exit
+do write
+
+NUCLEO
+
+interface serial 0/0/1
+no ip add 172.16.0.110 255.255.255.252
+no clock ray 6400
+exit
+interface serial 0/0/0
+no ip add 172.16.0.98 255.255.255.252
+no clock rate 6400
+exit
+do write
+
+PASO 2
+
+PRIMERA CAPTURA
+
+ADMINISTRADOR
+
+no ip route 172.16.0.16 255.255.255.240 172.16.0.110
+no ip route 172.16.0.64 255.255.255.240 172.16.0.110
+no ip route 172.16.0.80 255.255.255.240 172.16.0.110
+no ip route 172.16.0.100 255.255.255.252 172.16.0.110
+no ip route 172.16.0.104 255.255.255.252 172.16.0.98
+no ip route 198.200.0.0 255.255.255.252 172.16.0.98
+no ip route 198.200.1.0 255.255.255.240 172.16.0.98
+no ip route 198.200.2.0 255.255.255.240 172.16.0.98
+do write
+
+
+show ip route
+
+NUCLEO
+
+no ip route 172.16.0.32 255.255.255.240 172.16.0.97 
+no ip route 172.16.0.48 255.255.255.240 172.16.0.97
+no ip route 172.16.0.0 255.255.255.240 172.16.0.97 
+no ip route 172.16.0.108 255.255.255.252 172.16.0.97  
+no ip route 172.16.0.16 255.255.255.240 172.16.0.102 
+no ip route 172.16.0.64 255.255.255.240 172.16.0.102 
+no ip route 172.16.0.80 255.255.255.240 172.16.0.102 
+no ip route 198.200.1.0 255.255.255.240 172.16.0.106 
+no ip route 198.200.0.0 255.255.255.252 172.16.0.106
+no ip route 198.200.2.0 255.255.255.240 172.16.0.106
+do write
+
+show ip route
+
+
+COMERCIAL
+
+no ip route 172.16.0.32 255.255.255.240 172.16.0.109
+no ip route 172.16.0.48 255.255.255.240 172.16.0.109  
+no ip route 172.16.0.0 255.255.255.240 172.16.0.109 
+no ip route 172.16.0.96 255.255.255.240 172.16.0.109 
+no ip route 172.16.0.104 255.255.255.252 172.16.0.101 
+no ip route 198.200.1.0 255.255.255.240 172.16.0.101 
+no ip route 198.200.0.0 255.255.255.252 172.16.0.101 
+no ip route 198.200.2.0 255.255.255.240 172.16.0.101
+do write
+
+
+
+show ip route
+
+segunda captura
+
+ADMINISTRATIVO
+
+configure t
+ip route 172.16.0.104 255.255.255.252 10.0.0.2
+ip route 172.16.0.16 255.255.255.240 10.0.0.3
+ip route 172.16.0.64 255.255.255.240 10.0.0.3
+ip route 172.16.0.80 255.255.255.240 10.0.0.3
+ip route 198.200.1.0 255.255.255.240 10.0.0.2
+ip route 198.200.0.0 255.255.255.240 10.0.0.2
+ip route 198.200.2.0 255.255.255.240 10.0.0.2
+no ip route 198.200.0.0 255.255.255.240 10.0.0.2
+ip route 198.200.0.0 255.255.255.252 10.0.0.2
+exit
+show ip route
+
+PASO 3
+
+ADMINISTRATIVO
+
+interface serial 0/0/0
+ip add 10.0.0.1 255.0.0.0
+encapsulation frame-relay 
+exit
+do write
+
+
+
+COMERCIAL
+
+interface serial 0/0/0
+ip add 10.0.0.3 255.0.0.0
+encapsulation frame-relay 
+exit
+do write
+
+NUCLEO
+
+interface serial 0/0/0
+ip add 10.0.0.2 255.0.0.0
+encapsulation frame-relay 
+exit
+do write
+
+PASO 4 
+
+do write
+
+
+PASO 5
+
+DLCI ESCRITOS
+
+ADMINISTRADORES : 1
+
+102 : ADMINISTRATIVOS-NUCLEOS
+103 : ADMINISTRATIVOS-COMERCIAL
+
+NUCLEO : 2
+
+201 : NUCLEO-ADMINISTRATIVO
+203 : NUCLEO-COMERCIAL
+
+COMERCIAL : 3
+
+301 : COMERCIAL-ADMINISTRATIVOS
+302 : COMERCIAL-NUCEO
+
+PASO 6
+
+DLCI EN FRAME RELAY
+
+ADMINISTRADORES : 1
+
+102 : ADMINISTRATIVOS-NUCLEOS
+103 : ADMINISTRATIVOS-COMERCIAL
+
+NUCLEO : 2
+
+201 : NUCLEO-ADMINISTRATIVO
+203 : NUCLEO-COMERCIAL
+
+COMERCIAL : 3
+
+301 : COMERCIAL-ADMINISTRATIVOS
+302 : COMERCIAL-NUCEO
+
+
+PASO 7
+
+CONEXN FRAME RELAY 
+
+PASO 8 
+
+SHOW FRAME-RELAY MAP
+
+
+TAREA 9
+
+paso 1
+
+NUCLEO
+
+configure t
+interface serial 0/1/0
+encapsulation PPP
+exit
+do write
+
+FIREWALL
+
+configure t
+interface serial 0/0/0
+encapsulation PPP
+exit
+do write
+
+PASO 2
+
+NUCLEO
+
+show interfaces serial 0/1/0
+
+FIREWALL
+
+show interfaces serial 0/0/0
+
+TAREA 10 
+
+PASO 1
+
+NUCLEO
+configure t
+username FIREWALL password 123
+
+FIREWALL
+configure t
+username NUCLEO password 123
+
+PASO 2
+
+NUCLEO
+
+interface serial 0/1/0
+PPP authentication PAP
+ppp pap sent-username NUCLEO password 123
+exit
+do write
+
+FIREWALL
+
+configure t
+interface serial 0/0/0
+PPP authentication PAP
+ppp pap sent-username FIREWALL password 123
+exit
+
+PASO 3
+
+NUCLEO
+
+show interfaces serial 0/1/0
+
+FIREWALL
+
+show interfaces serial 0/0/0
+
+
